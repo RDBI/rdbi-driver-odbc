@@ -13,7 +13,6 @@ end
 
 class RDBI::Driver::ODBC < RDBI::Driver
   class Database < RDBI::Database
-    extend MethLab
 
     attr_accessor :handle
 
@@ -199,7 +198,6 @@ class RDBI::Driver::ODBC < RDBI::Driver
   end
 
   class Statement < RDBI::Statement
-    extend MethLab
 
     attr_accessor :handle
 
