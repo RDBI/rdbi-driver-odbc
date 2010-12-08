@@ -77,6 +77,7 @@ class RDBI::Driver::ODBC < RDBI::Driver
     end
 
     def next_row
+      return nil if last_row?
       val = @rs[@index]
       @index += 1
       val
