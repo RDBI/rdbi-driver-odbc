@@ -1,7 +1,4 @@
 require 'rdbi'
-require 'epoxy'
-require 'methlab'
-
 gem 'ruby-odbc', '= 0.99992'
 require 'odbc'
 
