@@ -68,117 +68,69 @@ class RDBI::Driver::ODBC < RDBI::Driver
 
   class Cursor < RDBI::Cursor
 
+    # only #fetch works reliably with ODBC, so we just build the array upfront.
     def initialize(handle)
       super handle
       @index = 0
+      @rs = []
+      while r = @handle.fetch
+        @rs << r
+      end
     end
 
     def next_row
-      val = if @array_handle
-              @array_handle[@index]
-            else
-              @handle.fetch
-            end
+      val = @rs[@index]
       @index += 1
       val
     end
 
     def result_count
-      if @array_handle
-        @array_handle.size
-      else
-        @handle.nrows
-      end
+      @rs.size
     end
 
     def affected_count
-      if @array_handle
-        0
-      else
-        @handle.nrows
-      end
+      0
     end
 
     def first
-      if @array_handle
-        @array_handle.first
-      else
-        @handle.fetch_first
-      end
+      @rs.first
     end
 
     def last
-      if @array_handle
-        @array_handle.last
-      else
-        @handle.fetch_scroll(::ODBC::SQL_FETCH_LAST)
-      end
+      @rs.last
     end
 
     def rest
-      if @array_handle
-        @array_handle[@index+1..-1]
-      else
-        @handle.fetch_all[1..-1]
-      end
+      @rs[@index+1..-1]
     end
 
     def all
-      if @array_handle
-        @array_handle
-      else
-        @handle.fetch_scroll(::ODBC::SQL_FETCH_FIRST) +
-          @handle.fetch_all
-      end
+      @rs
     end
 
     def fetch(count = 1)
       return [] if last_row?
-      if @array_handle
-        @array_handle[@index, count]
-      else
-        @handle.fetch_many(count)
-      end
+      @rs[@index, count]
     end
 
     def [](index)
-      if @array_handle
-        @array_handle[index]
-      else
-        @handle.fetch_scroll(::ODBC::SQL_FETCH_ABSOLUTE, index)
-      end
+      @rs[index]
     end
 
     def last_row?
-      if @array_handle
-        @index == @array_handle.size
-      else
-        @index == @handle.nrows
-      end
+      @index == @rs.size
     end
 
     def empty?
-      if @array_handle
-        @array_handle.empty?
-      else
-        @handle.nrows == 0
-      end
+      @rs.empty?
     end
 
     def rewind
-      return if @index == 0
       @index = 0
-      unless @array_handle
-        @handle.fetch_first
-      end
     end
 
     def size
-      if @array_handle
-        @array_handle.length
-      else
-        @handle.nrows
-      end
+      @rs.length
     end
 
     def finish
@@ -186,14 +138,7 @@ class RDBI::Driver::ODBC < RDBI::Driver
     end
 
     def coerce_to_array
-      unless @array_handle
-        @array_handle = []
-        begin
-          @array_handle << @handle.fetch_first
-          @array_handle += @handle.fetch_all
-        rescue
-        end
-      end
+      @rs
     end
   end
 
