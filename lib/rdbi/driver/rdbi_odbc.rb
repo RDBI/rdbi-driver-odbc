@@ -204,8 +204,7 @@ class RDBI::Driver::ODBC < RDBI::Driver
     def initialize(query, dbh)
       super
 
-      ep = Epoxy.new(query)
-      @handle = @dbh.handle.prepare(ep.query)
+      @handle = @dbh.handle.prepare(query)
       @output_type_map = RDBI::Type.create_type_hash(RDBI::Type::Out)
     end
 
