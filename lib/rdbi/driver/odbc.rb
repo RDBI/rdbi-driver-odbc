@@ -165,6 +165,7 @@ class RDBI::Driver::ODBC < RDBI::Driver
 
     def finish
       @handle.drop
+      super
     end
   end
 end
