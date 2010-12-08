@@ -100,7 +100,7 @@ class RDBI::Driver::ODBC < RDBI::Driver
     end
 
     def rest
-      @rs[@index+1..-1]
+      @rs[@index..-1]
     end
 
     def all
