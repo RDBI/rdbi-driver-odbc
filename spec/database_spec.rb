@@ -38,6 +38,7 @@ describe "RDBI::Driver::ODBC::Database" do
   specify "#new_statement" do
     stmt = @dbh.new_statement("SELECT * FROM TBL")
     stmt.should be_an RDBI::Driver::ODBC::Statement
+    stmt.finish
   end
 
   specify "#table_schema" do
