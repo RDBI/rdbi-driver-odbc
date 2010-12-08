@@ -1,4 +1,5 @@
 require 'rdbi'
+require 'rubygems'
 gem 'ruby-odbc', '= 0.99992'
 require 'odbc'
 
