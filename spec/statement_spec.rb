@@ -25,6 +25,22 @@ describe "RDBI::Driver::ODBC::Statement" do
     rs[0].should be_an RDBI::Driver::ODBC::Cursor
     rs[1].should be_an RDBI::Schema
     rs[2].should be_an Hash
+
+    rs[1][:columns][0][:name].should == :COL1
+    rs[1][:columns][0][:type].should == "CHAR"
+    rs[1][:columns][0][:ruby_type].should == :default
+    rs[1][:columns][0][:precision].should == 0
+    rs[1][:columns][0][:scale].should == 0
+    rs[1][:columns][0][:nullable].should == true
+    rs[1][:columns][0][:table].should == "TB1"
+
+    rs[1][:columns][1][:name].should == :COL2
+    rs[1][:columns][1][:type].should == "INTEGER"
+    rs[1][:columns][1][:ruby_type].should == :integer
+    rs[1][:columns][1][:precision].should == 10
+    rs[1][:columns][1][:scale].should == 0
+    rs[1][:columns][1][:nullable].should == true
+    rs[1][:columns][1][:table].should == "TB1"
   end
 
   specify "#execute" do

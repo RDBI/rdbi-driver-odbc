@@ -10,6 +10,37 @@ class RDBI::Driver::ODBC < RDBI::Driver
 end
 
 class RDBI::Driver::ODBC < RDBI::Driver
+
+  SQL_TYPES = {
+      1 => {:type => "CHAR",           :ruby_type => :default},
+      2 => {:type => "NUMERIC",        :ruby_type => :decimal},
+      3 => {:type => "DECIMAL",        :ruby_type => :decimal},
+      4 => {:type => "INTEGER",        :ruby_type => :integer},
+      5 => {:type => "SMALLINT",       :ruby_type => :integer},
+      6 => {:type => "FLOAT",          :ruby_type => :decimal},
+      7 => {:type => "REAL",           :ruby_type => :decimal},
+      8 => {:type => "DOUBLE",         :ruby_type => :decimal},
+      9 => {:type => "DATE",           :ruby_type => :datetime},
+     10 => {:type => "TIME",           :ruby_type => :timestamp},
+     11 => {:type => "TIMESTAMP",      :ruby_type => :timestamp},
+     12 => {:type => "VARCHAR",        :ruby_type => :default},
+     13 => {:type => "BOOLEAN",        :ruby_type => :boolean},
+     91 => {:type => "DATE",           :ruby_type => :datetime},
+     92 => {:type => "TIME",           :ruby_type => :timestamp},
+     93 => {:type => "TIMESTAMP",      :ruby_type => :timestamp},
+    100 => {:type => nil,              :ruby_type => :default},
+     -1 => {:type => "LONG VARCHAR",   :ruby_type => :default},
+     -2 => {:type => "BINARY",         :ruby_type => :default},
+     -3 => {:type => "VARBINARY",      :ruby_type => :default},
+     -4 => {:type => "LONG VARBINARY", :ruby_type => :default},
+     -5 => {:type => "BIGINT",         :ruby_type => :integer},
+     -6 => {:type => "TINYINT",        :ruby_type => :integer},
+     -7 => {:type => "BIT",            :ruby_type => :default},
+     -8 => {:type => "CHAR",           :ruby_type => :default},
+    -10 => {:type => "BLOB",           :ruby_type => :default},
+    -11 => {:type => "CLOB",           :ruby_type => :default},
+  }
+
   class Database < RDBI::Database
 
     attr_accessor :handle
@@ -157,7 +188,13 @@ class RDBI::Driver::ODBC < RDBI::Driver
 
       columns = @handle.columns(true).collect do |col|
         newcol = RDBI::Column.new
-        newcol.name = col.name.to_sym
+        newcol.name        = col.name.to_sym
+        newcol.type        = SQL_TYPES[col.type][:type]
+        newcol.ruby_type   = SQL_TYPES[col.type][:ruby_type]
+        newcol.precision   = col.precision
+        newcol.scale       = col.scale
+        newcol.nullable    = col.nullable
+        newcol.table       = col.table
         newcol
       end
 
