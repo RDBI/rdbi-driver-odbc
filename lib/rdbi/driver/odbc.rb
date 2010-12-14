@@ -2,6 +2,7 @@ require 'rdbi'
 require 'rubygems'
 gem 'ruby-odbc', '= 0.99992'
 require 'odbc'
+require 'time'
 
 class RDBI::Driver::ODBC < RDBI::Driver
   def initialize(*args)
@@ -20,13 +21,13 @@ class RDBI::Driver::ODBC < RDBI::Driver
       6 => {:type => "FLOAT",          :ruby_type => :decimal},
       7 => {:type => "REAL",           :ruby_type => :decimal},
       8 => {:type => "DOUBLE",         :ruby_type => :decimal},
-      9 => {:type => "DATE",           :ruby_type => :datetime},
-     10 => {:type => "TIME",           :ruby_type => :timestamp},
+      9 => {:type => "DATE",           :ruby_type => :date},
+     10 => {:type => "TIME",           :ruby_type => :time},
      11 => {:type => "TIMESTAMP",      :ruby_type => :timestamp},
      12 => {:type => "VARCHAR",        :ruby_type => :default},
      13 => {:type => "BOOLEAN",        :ruby_type => :boolean},
-     91 => {:type => "DATE",           :ruby_type => :datetime},
-     92 => {:type => "TIME",           :ruby_type => :timestamp},
+     91 => {:type => "DATE",           :ruby_type => :date},
+     92 => {:type => "TIME",           :ruby_type => :time},
      93 => {:type => "TIMESTAMP",      :ruby_type => :timestamp},
     100 => {:type => nil,              :ruby_type => :default},
      -1 => {:type => "LONG VARCHAR",   :ruby_type => :default},
@@ -181,6 +182,21 @@ class RDBI::Driver::ODBC < RDBI::Driver
 
       @handle = @dbh.handle.prepare(query)
       @output_type_map = RDBI::Type.create_type_hash(RDBI::Type::Out)
+
+      @output_type_map[:date] = TypeLib::Filter.new(
+        proc{|obj| obj.is_a?(::ODBC::Date)},
+        proc{|obj| Date.parse(obj.to_s)}
+      )
+
+      @output_type_map[:time] = TypeLib::Filter.new(
+        proc{|obj| obj.is_a?(::ODBC::Time)},
+        proc{|obj| Time.parse(obj.to_s)}
+      )
+
+      @output_type_map[:timestamp] = TypeLib::Filter.new(
+        proc{|obj| obj.is_a?(::ODBC::TimeStamp)},
+        proc{|obj| DateTime.parse(obj.to_s)}
+      )
     end
 
     def new_execution(*binds)

@@ -62,4 +62,42 @@ describe "RDBI::Driver::ODBC::Statement" do
     @sth.finish
     @sth.finished?.should be_true
   end
+
+  describe "@output_type_map[:date]" do
+    before :each do
+      @rs = @dbh.execute("SELECT COL1 FROM TB2")
+    end
+
+    specify "::ODBC::Date" do
+      r = @rs.as(:Struct).fetch(:first)
+      r[:COL1].should be_a Date
+      r[:COL1].should == Date.parse("2010-01-01")
+    end
+  end
+
+  describe "@output_type_map[:datetime]" do
+    before :each do
+      @rs = @dbh.execute("SELECT COL2, COL3 FROM TB2")
+    end
+
+    specify "::ODBC::TimeStamp" do
+      r = @rs.as(:Struct).fetch(:first)
+      r[:COL2].should be_a DateTime
+      r[:COL3].should be_a DateTime
+      r[:COL2].should == DateTime.parse("2010-01-01 12:00:00")
+      r[:COL3].should == DateTime.parse("2010-01-01 12:00:00")
+    end
+  end
+
+  describe "@output_type_map[:time]" do
+    before :each do
+      @rs = @dbh.execute("SELECT COL4 FROM TB2")
+    end
+
+    specify "::ODBC::Time" do
+      r = @rs.as(:Struct).fetch(:first)
+      r[:COL4].should be_a Time
+      r[:COL4].should == Time.parse("12:00:00")
+    end
+  end
 end
