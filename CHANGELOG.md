@@ -1,3 +1,11 @@
+RDBI-DRIVER-ODBC 0.1.2
+======================
+
+Features
+--------
+ - Fix to work with RDBI v0.9.1
+ - Update rspec development dependency to ~> 2
+
 RDBI-DRIVER-ODBC 0.1.1
 ======================
 
