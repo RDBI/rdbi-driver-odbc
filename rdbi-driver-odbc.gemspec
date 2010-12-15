@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.add_dependency "ruby-odbc", "= 0.99992"
 
   s.add_development_dependency "rdbi-dbrc", "~> 0.1"
-  s.add_development_dependency "rspec",     "~> 2.2"
+  s.add_development_dependency "rspec",     "~> 2"
   s.add_development_dependency "yard"
 
   s.files        = Dir.glob("lib/**/*") + %w(CHANGELOG.md LICENSE README.md)
