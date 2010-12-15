@@ -183,20 +183,26 @@ class RDBI::Driver::ODBC < RDBI::Driver
       @handle = @dbh.handle.prepare(query)
       @output_type_map = RDBI::Type.create_type_hash(RDBI::Type::Out)
 
-      @output_type_map[:date] = TypeLib::Filter.new(
-        proc{|obj| obj.is_a?(::ODBC::Date)},
-        proc{|obj| Date.parse(obj.to_s)}
-      )
+      @output_type_map[:date] = [
+        TypeLib::Filter.new(
+          proc{|obj| obj.is_a?(::ODBC::Date)},
+          proc{|obj| Date.parse(obj.to_s)}
+        )
+      ]
 
-      @output_type_map[:time] = TypeLib::Filter.new(
-        proc{|obj| obj.is_a?(::ODBC::Time)},
-        proc{|obj| Time.parse(obj.to_s)}
-      )
+      @output_type_map[:time] = [
+        TypeLib::Filter.new(
+          proc{|obj| obj.is_a?(::ODBC::Time)},
+          proc{|obj| Time.parse(obj.to_s)}
+        )
+      ]
 
-      @output_type_map[:timestamp] = TypeLib::Filter.new(
-        proc{|obj| obj.is_a?(::ODBC::TimeStamp)},
-        proc{|obj| DateTime.parse(obj.to_s)}
-      )
+      @output_type_map[:timestamp] = [
+        TypeLib::Filter.new(
+          proc{|obj| obj.is_a?(::ODBC::TimeStamp)},
+          proc{|obj| DateTime.parse(obj.to_s)}
+        )
+      ]
     end
 
     def new_execution(*binds)
