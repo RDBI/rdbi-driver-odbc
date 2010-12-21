@@ -42,7 +42,26 @@ describe "RDBI::Driver::ODBC::Database" do
   end
 
   specify "#table_schema" do
-    lambda{@dbh.table_schema("TBL")}.should raise_error NotImplementedError
+    ts = @dbh.table_schema("TB1")
+    ts.should be_a RDBI::Schema
+
+    ts[:columns][0][:name].should == :COL1
+    ts[:columns][0][:type].should == "CHAR"
+    ts[:columns][0][:ruby_type].should == :default
+    ts[:columns][0][:precision].should == 0
+    ts[:columns][0][:scale].should == 0
+    ts[:columns][0][:nullable].should == true
+    ts[:columns][0][:table].should == "TB1"
+
+    ts[:columns][1][:name].should == :COL2
+    ts[:columns][1][:type].should == "INTEGER"
+    ts[:columns][1][:ruby_type].should == :integer
+    ts[:columns][1][:precision].should == 10
+    ts[:columns][1][:scale].should == 0
+    ts[:columns][1][:nullable].should == true
+    ts[:columns][1][:table].should == "TB1"
+
+    ts[:tables].should == ["TB1"]
   end
 
   specify "#schema" do

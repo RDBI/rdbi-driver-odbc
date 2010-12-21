@@ -84,7 +84,9 @@ class RDBI::Driver::ODBC < RDBI::Driver
     end
 
     def table_schema(table_name)
-      raise NotImplementedError, "#table_schema"
+      new_statement(
+        "SELECT * FROM #{table_name} WHERE 1=2"
+      ).new_execution[1]
     end
 
     def schema
