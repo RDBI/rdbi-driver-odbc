@@ -234,9 +234,21 @@ class RDBI::Driver::ODBC < RDBI::Driver
         newcol.scale       = col.scale
         newcol.nullable    = col.nullable
         newcol.table       = col.table
+        newcol.primary_key = false
         newcol
       end
       tables = columns.map(&:table).uniq
+
+      primary_keys = Hash.new{|h,k| h[k] = []}
+      tables.each do |tbl|
+        sth = @dbh.handle.primary_keys(tbl)
+        while r = sth.fetch do
+          primary_keys[tbl] << r[3].to_sym
+        end
+      end
+      columns.each do |col|
+        col.primary_key = true if primary_keys[col.table].include? col.name
+      end
 
       return [
         Cursor.new(@handle),

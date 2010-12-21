@@ -33,6 +33,7 @@ describe "RDBI::Driver::ODBC::Statement" do
     rs[1][:columns][0][:scale].should == 0
     rs[1][:columns][0][:nullable].should == true
     rs[1][:columns][0][:table].should == "TB1"
+    rs[1][:columns][0][:primary_key].should == false
 
     rs[1][:columns][1][:name].should == :COL2
     rs[1][:columns][1][:type].should == "INTEGER"
@@ -41,6 +42,7 @@ describe "RDBI::Driver::ODBC::Statement" do
     rs[1][:columns][1][:scale].should == 0
     rs[1][:columns][1][:nullable].should == true
     rs[1][:columns][1][:table].should == "TB1"
+    rs[1][:columns][1][:primary_key].should == false
 
     rs[1][:tables].should == ["TB1"]
   end

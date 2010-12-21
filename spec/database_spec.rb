@@ -52,6 +52,7 @@ describe "RDBI::Driver::ODBC::Database" do
     ts[:columns][0][:scale].should == 0
     ts[:columns][0][:nullable].should == true
     ts[:columns][0][:table].should == "TB1"
+    ts[:columns][0][:primary_key].should == false
 
     ts[:columns][1][:name].should == :COL2
     ts[:columns][1][:type].should == "INTEGER"
@@ -60,8 +61,23 @@ describe "RDBI::Driver::ODBC::Database" do
     ts[:columns][1][:scale].should == 0
     ts[:columns][1][:nullable].should == true
     ts[:columns][1][:table].should == "TB1"
+    ts[:columns][1][:primary_key].should == false
 
     ts[:tables].should == ["TB1"]
+
+    ts = @dbh.table_schema("TB3")
+    ts.should be_a RDBI::Schema
+
+    ts[:columns][0][:name].should == :COL1
+    ts[:columns][0][:type].should == "INTEGER"
+    ts[:columns][0][:ruby_type].should == :integer
+    ts[:columns][0][:precision].should == 10
+    ts[:columns][0][:scale].should == 0
+    ts[:columns][0][:nullable].should == false
+    ts[:columns][0][:table].should == "TB3"
+    ts[:columns][0][:primary_key].should == true
+
+    ts[:tables].should == ["TB3"]
   end
 
   specify "#schema" do
