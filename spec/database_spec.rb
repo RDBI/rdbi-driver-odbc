@@ -73,4 +73,13 @@ describe "RDBI::Driver::ODBC::Database" do
     @dbh.disconnect
     @dbh.ping.should be_false
   end
+
+  specify "#quote" do
+    @dbh.quote(1).should        == "1"
+    @dbh.quote(1.2).should      == "1.2"
+    @dbh.quote("string").should == "'string'"
+    @dbh.quote(nil).should      == "NULL"
+    @dbh.quote(true).should     == "1"
+    @dbh.quote(false).should    == "0"
+  end
 end

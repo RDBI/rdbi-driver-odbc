@@ -96,6 +96,21 @@ class RDBI::Driver::ODBC < RDBI::Driver
     def ping
       @handle.connected?
     end
+
+    def quote(item)
+      case item
+      when Numeric
+        item.to_s
+      when TrueClass
+        "1"
+      when FalseClass
+        "0"
+      when NilClass
+        "NULL"
+      else
+        "'#{item.to_s}'"
+      end
+    end
   end
 
   class Cursor < RDBI::Cursor
