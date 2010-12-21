@@ -3,7 +3,7 @@ require 'rdbi-driver-odbc'
 
 describe "RDBI::Driver::ODBC::Database" do
   before :each do
-    @dbh = new_database
+    @dbh = init_database
   end
 
   after :each do
@@ -24,7 +24,18 @@ describe "RDBI::Driver::ODBC::Database" do
   end
 
   specify "#transaction" do
-    lambda{@dbh.transaction{}}.should raise_error NotImplementedError
+    lambda{
+      @dbh.transaction{
+        @dbh.execute "INSERT INTO TB3 VALUES (1)"
+      }
+    }.should_not raise_error
+
+    lambda{
+      @dbh.transaction{
+        @dbh.execute "INSERT INTO TB3 VALUES (0)"
+        @dbh.execute "INSERT INTO TB3 VALUES (1)"
+      }
+    }.should raise_error
   end
 
   specify "#rollback" do

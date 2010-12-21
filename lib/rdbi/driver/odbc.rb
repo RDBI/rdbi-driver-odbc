@@ -66,7 +66,8 @@ class RDBI::Driver::ODBC < RDBI::Driver
     end
 
     def transaction(&block)
-      raise NotImplementedError, "#transaction"
+      raise RDBI::TransactionError, "Already in transaction" if in_transaction?
+      @handle.transaction{super}
     end
 
     def rollback
