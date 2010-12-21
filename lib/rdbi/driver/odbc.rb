@@ -219,8 +219,13 @@ class RDBI::Driver::ODBC < RDBI::Driver
         newcol.table       = col.table
         newcol
       end
+      tables = columns.map(&:table).uniq
 
-      return Cursor.new(@handle), RDBI::Schema.new(columns), @output_type_map
+      return [
+        Cursor.new(@handle),
+        RDBI::Schema.new(columns, tables),
+        @output_type_map
+      ]
     end
 
     def finish

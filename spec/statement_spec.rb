@@ -41,6 +41,8 @@ describe "RDBI::Driver::ODBC::Statement" do
     rs[1][:columns][1][:scale].should == 0
     rs[1][:columns][1][:nullable].should == true
     rs[1][:columns][1][:table].should == "TB1"
+
+    rs[1][:tables].should == ["TB1"]
   end
 
   specify "#execute" do
