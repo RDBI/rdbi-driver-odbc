@@ -91,7 +91,12 @@ class RDBI::Driver::ODBC < RDBI::Driver
     end
 
     def schema
-      raise NotImplementedError, "#schema"
+      sth = @handle.tables
+      tables = []
+      while r = sth.fetch
+        tables << table_schema(r[2])
+      end
+      tables
     end
 
     def ping

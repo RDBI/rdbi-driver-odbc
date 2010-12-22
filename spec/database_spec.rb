@@ -92,7 +92,81 @@ describe "RDBI::Driver::ODBC::Database" do
   end
 
   specify "#schema" do
-    lambda{@dbh.schema}.should raise_error NotImplementedError
+    ts = @dbh.schema
+    ts.should be_an Array
+    ts.length.should == 3
+
+    ts[0].should be_a RDBI::Schema
+    ts[0][:tables].should == ["tb1"]
+
+    ts[0][:columns][0][:name].should == :COL1
+    ts[0][:columns][0][:type].should == "CHAR"
+    ts[0][:columns][0][:ruby_type].should == :default
+    ts[0][:columns][0][:precision].should == 0
+    ts[0][:columns][0][:scale].should == 0
+    ts[0][:columns][0][:nullable].should == true
+    ts[0][:columns][0][:table].should == "tb1"
+    ts[0][:columns][0][:primary_key].should == false
+
+    ts[0][:columns][1][:name].should == :COL2
+    ts[0][:columns][1][:type].should == "INTEGER"
+    ts[0][:columns][1][:ruby_type].should == :integer
+    ts[0][:columns][1][:precision].should == 10
+    ts[0][:columns][1][:scale].should == 0
+    ts[0][:columns][1][:nullable].should == true
+    ts[0][:columns][1][:table].should == "tb1"
+    ts[0][:columns][1][:primary_key].should == false
+
+    ts[1].should be_a RDBI::Schema
+    ts[1][:tables].should == ["tb2"]
+
+    ts[1][:columns][0][:name].should == :COL1
+    ts[1][:columns][0][:type].should == "DATE"
+    ts[1][:columns][0][:ruby_type].should == :date
+    ts[1][:columns][0][:precision].should == 10
+    ts[1][:columns][0][:scale].should == 0
+    ts[1][:columns][0][:nullable].should == true
+    ts[1][:columns][0][:table].should == "tb2"
+    ts[1][:columns][0][:primary_key].should == false
+
+    ts[1][:columns][1][:name].should == :COL2
+    ts[1][:columns][1][:type].should == "TIMESTAMP"
+    ts[1][:columns][1][:ruby_type].should == :timestamp
+    ts[1][:columns][1][:precision].should == 19
+    ts[1][:columns][1][:scale].should == 0
+    ts[1][:columns][1][:nullable].should == true
+    ts[1][:columns][1][:table].should == "tb2"
+    ts[1][:columns][1][:primary_key].should == false
+
+    ts[1][:columns][2][:name].should == :COL3
+    ts[1][:columns][2][:type].should == "TIMESTAMP"
+    ts[1][:columns][2][:ruby_type].should == :timestamp
+    ts[1][:columns][2][:precision].should == 19
+    ts[1][:columns][2][:scale].should == 0
+    ts[1][:columns][2][:nullable].should == true
+    ts[1][:columns][2][:table].should == "tb2"
+    ts[1][:columns][2][:primary_key].should == false
+
+    ts[1][:columns][3][:name].should == :COL4
+    ts[1][:columns][3][:type].should == "TIME"
+    ts[1][:columns][3][:ruby_type].should == :time
+    ts[1][:columns][3][:precision].should == 8
+    ts[1][:columns][3][:scale].should == 0
+    ts[1][:columns][3][:nullable].should == true
+    ts[1][:columns][3][:table].should == "tb2"
+    ts[1][:columns][3][:primary_key].should == false
+
+    ts[2].should be_a RDBI::Schema
+    ts[2][:tables].should == ["tb3"]
+
+    ts[2][:columns][0][:name].should == :COL1
+    ts[2][:columns][0][:type].should == "INTEGER"
+    ts[2][:columns][0][:ruby_type].should == :integer
+    ts[2][:columns][0][:precision].should == 10
+    ts[2][:columns][0][:scale].should == 0
+    ts[2][:columns][0][:nullable].should == false
+    ts[2][:columns][0][:table].should == "tb3"
+    ts[2][:columns][0][:primary_key].should == true
   end
 
   specify "#ping" do
