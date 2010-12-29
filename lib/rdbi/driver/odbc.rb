@@ -1,6 +1,6 @@
 require 'rdbi'
 require 'rubygems'
-gem 'ruby-odbc', '= 0.99992'
+gem 'ruby-odbc', '= 0.99993'
 require 'odbc'
 require 'time'
 
