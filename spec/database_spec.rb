@@ -2,185 +2,255 @@ require File.expand_path("../spec_helper", __FILE__)
 require 'rdbi-driver-odbc'
 
 describe "RDBI::Driver::ODBC::Database" do
-  before :each do
-    @dbh = init_database
-  end
+  let(:dbh) { init_database }
+  subject   { dbh }
 
   after :each do
-    @dbh.disconnect if @dbh and @dbh.connected?
+    dbh.disconnect if dbh and dbh.connected?
   end
 
-  specify "#new" do
-    @dbh.should_not be_nil
-    @dbh.should be_an RDBI::Driver::ODBC::Database
-    @dbh.should be_an RDBI::Database
-    @dbh.database_name.should == "testdb"
-  end
+  it { should_not be_nil }
+  it { should be_a RDBI::Driver::ODBC::Database }
+  it { should be_a RDBI::Database }
+
+  its(:database_name) { should == "testdb" }
 
   specify "#disconnect" do
-    @dbh.connected?.should be_true
-    @dbh.disconnect
-    @dbh.connected?.should be_false
+    dbh.connected?.should be_true
+
+    dbh.disconnect
+    dbh.connected?.should be_false
   end
 
   specify "#transaction" do
-    lambda{
-      @dbh.transaction{
-        @dbh.execute "INSERT INTO TB3 VALUES (1)"
+    expect{
+      dbh.transaction{
+        dbh.execute "INSERT INTO TB3 VALUES (1)"
       }
-    }.should_not raise_error
+    }.to_not raise_error
 
-    lambda{
-      @dbh.transaction{
-        @dbh.execute "INSERT INTO TB3 VALUES (0)"
-        @dbh.execute "INSERT INTO TB3 VALUES (1)"
+    expect{
+      dbh.transaction{
+        dbh.execute "INSERT INTO TB3 VALUES (0)"
+        dbh.execute "INSERT INTO TB3 VALUES (1)"
       }
-    }.should raise_error
+    }.to raise_error
   end
 
   specify "#rollback" do
-    lambda{@dbh.rollback}.should_not raise_error
+    expect{dbh.rollback}.to_not raise_error
   end
 
   specify "#commit" do
-    lambda{@dbh.commit}.should_not raise_error
+    expect{dbh.commit}.to_not raise_error
   end
 
   specify "#new_statement" do
-    stmt = @dbh.new_statement("SELECT * FROM TBL")
+    stmt = dbh.new_statement("SELECT * FROM TBL")
     stmt.should be_an RDBI::Driver::ODBC::Statement
     stmt.finish
   end
 
-  specify "#table_schema" do
-    ts = @dbh.table_schema("TB1")
-    ts.should be_a RDBI::Schema
+  describe "#table_schema" do
+    context "TB1" do
+      let(:ts) { dbh.table_schema "TB1" }
+      subject  { ts }
 
-    ts[:columns][0][:name].should == :COL1
-    ts[:columns][0][:type].should == "CHAR"
-    ts[:columns][0][:ruby_type].should == :default
-    ts[:columns][0][:precision].should == 0
-    ts[:columns][0][:scale].should == 0
-    ts[:columns][0][:nullable].should == true
-    ts[:columns][0][:table].should == "TB1"
-    ts[:columns][0][:primary_key].should == false
+      it { should be_a RDBI::Schema }
 
-    ts[:columns][1][:name].should == :COL2
-    ts[:columns][1][:type].should == "INTEGER"
-    ts[:columns][1][:ruby_type].should == :integer
-    ts[:columns][1][:precision].should == 10
-    ts[:columns][1][:scale].should == 0
-    ts[:columns][1][:nullable].should == true
-    ts[:columns][1][:table].should == "TB1"
-    ts[:columns][1][:primary_key].should == false
+      its(:tables) { should == ["TB1"] }
 
-    ts[:tables].should == ["TB1"]
+      context "ts[:columns][0]" do
+        subject { ts[:columns][0] }
 
-    ts = @dbh.table_schema("TB3")
-    ts.should be_a RDBI::Schema
+        its(:name)        { should == :COL1    }
+        its(:type)        { should == "CHAR"   }
+        its(:ruby_type)   { should == :default }
+        its(:precision)   { should == 0        }
+        its(:scale)       { should == 0        }
+        its(:nullable)    { should == true     }
+        its(:table)       { should == "TB1"    }
+        its(:primary_key) { should == false    }
+      end
 
-    ts[:columns][0][:name].should == :COL1
-    ts[:columns][0][:type].should == "INTEGER"
-    ts[:columns][0][:ruby_type].should == :integer
-    ts[:columns][0][:precision].should == 10
-    ts[:columns][0][:scale].should == 0
-    ts[:columns][0][:nullable].should == false
-    ts[:columns][0][:table].should == "TB3"
-    ts[:columns][0][:primary_key].should == true
+      context "ts[:columns][1]" do
+        subject { ts[:columns][1] }
 
-    ts[:tables].should == ["TB3"]
+        its(:name)        { should == :COL2     }
+        its(:type)        { should == "INTEGER" }
+        its(:ruby_type)   { should == :integer  }
+        its(:precision)   { should == 10        }
+        its(:scale)       { should == 0         }
+        its(:nullable)    { should == true      }
+        its(:table)       { should == "TB1"     }
+        its(:primary_key) { should == false     }
+      end
+    end
+
+    context "TB3" do
+      let(:ts) { dbh.table_schema "TB3" }
+      subject  { ts }
+
+      it { should be_a RDBI::Schema }
+
+      its(:tables) { should == ["TB3"] }
+
+      context "ts[:columns][0]" do
+        subject { ts[:columns][0] }
+
+        its(:name)        { should == :COL1     }
+        its(:type)        { should == "INTEGER" }
+        its(:ruby_type)   { should == :integer  }
+        its(:precision)   { should == 10        }
+        its(:scale)       { should == 0         }
+        its(:nullable)    { should == false     }
+        its(:table)       { should == "TB3"     }
+        its(:primary_key) { should == true      }
+      end
+    end
+
   end
 
-  specify "#schema" do
-    ts = @dbh.schema
-    ts.should be_an Array
-    ts.length.should == 3
+  describe "#schema" do
+    let(:ts) { dbh.schema }
+    subject  { ts }
 
-    ts[0].should be_a RDBI::Schema
-    ts[0][:tables].should == ["tb1"]
+    it {should be_an Array }
 
-    ts[0][:columns][0][:name].should == :COL1
-    ts[0][:columns][0][:type].should == "CHAR"
-    ts[0][:columns][0][:ruby_type].should == :default
-    ts[0][:columns][0][:precision].should == 0
-    ts[0][:columns][0][:scale].should == 0
-    ts[0][:columns][0][:nullable].should == true
-    ts[0][:columns][0][:table].should == "tb1"
-    ts[0][:columns][0][:primary_key].should == false
+    its(:length) { should == 3 }
 
-    ts[0][:columns][1][:name].should == :COL2
-    ts[0][:columns][1][:type].should == "INTEGER"
-    ts[0][:columns][1][:ruby_type].should == :integer
-    ts[0][:columns][1][:precision].should == 10
-    ts[0][:columns][1][:scale].should == 0
-    ts[0][:columns][1][:nullable].should == true
-    ts[0][:columns][1][:table].should == "tb1"
-    ts[0][:columns][1][:primary_key].should == false
+    context "ts[0]" do
+      let(:t) { ts[0] }
+      subject { t }
 
-    ts[1].should be_a RDBI::Schema
-    ts[1][:tables].should == ["tb2"]
+      it { should be_a RDBI::Schema }
 
-    ts[1][:columns][0][:name].should == :COL1
-    ts[1][:columns][0][:type].should == "DATE"
-    ts[1][:columns][0][:ruby_type].should == :date
-    ts[1][:columns][0][:precision].should == 10
-    ts[1][:columns][0][:scale].should == 0
-    ts[1][:columns][0][:nullable].should == true
-    ts[1][:columns][0][:table].should == "tb2"
-    ts[1][:columns][0][:primary_key].should == false
+      its(:tables) { should == ["tb1"] }
 
-    ts[1][:columns][1][:name].should == :COL2
-    ts[1][:columns][1][:type].should == "TIMESTAMP"
-    ts[1][:columns][1][:ruby_type].should == :timestamp
-    ts[1][:columns][1][:precision].should == 19
-    ts[1][:columns][1][:scale].should == 0
-    ts[1][:columns][1][:nullable].should == true
-    ts[1][:columns][1][:table].should == "tb2"
-    ts[1][:columns][1][:primary_key].should == false
+      context "t[:columns][0]" do
+        subject { t[:columns][0] }
 
-    ts[1][:columns][2][:name].should == :COL3
-    ts[1][:columns][2][:type].should == "TIMESTAMP"
-    ts[1][:columns][2][:ruby_type].should == :timestamp
-    ts[1][:columns][2][:precision].should == 19
-    ts[1][:columns][2][:scale].should == 0
-    ts[1][:columns][2][:nullable].should == true
-    ts[1][:columns][2][:table].should == "tb2"
-    ts[1][:columns][2][:primary_key].should == false
+        its(:name)        { should == :COL1    }
+        its(:type)        { should == "CHAR"   }
+        its(:ruby_type)   { should == :default }
+        its(:precision)   { should == 0        }
+        its(:scale)       { should == 0        }
+        its(:nullable)    { should == true     }
+        its(:table)       { should == "tb1"    }
+        its(:primary_key) { should == false    }
+      end
 
-    ts[1][:columns][3][:name].should == :COL4
-    ts[1][:columns][3][:type].should == "TIME"
-    ts[1][:columns][3][:ruby_type].should == :time
-    ts[1][:columns][3][:precision].should == 8
-    ts[1][:columns][3][:scale].should == 0
-    ts[1][:columns][3][:nullable].should == true
-    ts[1][:columns][3][:table].should == "tb2"
-    ts[1][:columns][3][:primary_key].should == false
+      context "t[:columns][1]" do
+        subject { t[:columns][1] }
 
-    ts[2].should be_a RDBI::Schema
-    ts[2][:tables].should == ["tb3"]
+        its(:name)        { should == :COL2     }
+        its(:type)        { should == "INTEGER" }
+        its(:ruby_type)   { should == :integer  }
+        its(:precision)   { should == 10        }
+        its(:scale)       { should == 0         }
+        its(:nullable)    { should == true      }
+        its(:table)       { should == "tb1"     }
+        its(:primary_key) { should == false     }
+      end
+    end
 
-    ts[2][:columns][0][:name].should == :COL1
-    ts[2][:columns][0][:type].should == "INTEGER"
-    ts[2][:columns][0][:ruby_type].should == :integer
-    ts[2][:columns][0][:precision].should == 10
-    ts[2][:columns][0][:scale].should == 0
-    ts[2][:columns][0][:nullable].should == false
-    ts[2][:columns][0][:table].should == "tb3"
-    ts[2][:columns][0][:primary_key].should == true
+    context "ts[1]" do
+      let(:t) { ts[1] }
+      subject { t }
+
+      it { should be_a RDBI::Schema }
+
+      its(:tables) { should == ["tb2"] }
+
+      context "t[:columns][0]" do
+        subject { t[:columns][0] }
+
+        its(:name)        { should == :COL1  }
+        its(:type)        { should == "DATE" }
+        its(:ruby_type)   { should == :date  }
+        its(:precision)   { should == 10     }
+        its(:scale)       { should == 0      }
+        its(:nullable)    { should == true   }
+        its(:table)       { should == "tb2"  }
+        its(:primary_key) { should == false  }
+      end
+
+      context "t[:columns][1]" do
+        subject { t[:columns][1] }
+
+        its(:name)        { should == :COL2       }
+        its(:type)        { should == "TIMESTAMP" }
+        its(:ruby_type)   { should == :timestamp  }
+        its(:precision)   { should == 19          }
+        its(:scale)       { should == 0           }
+        its(:nullable)    { should == true        }
+        its(:table)       { should == "tb2"       }
+        its(:primary_key) { should == false       }
+      end
+
+      context "t[:columns][2]" do
+        subject { t[:columns][2] }
+
+        its(:name)        { should == :COL3       }
+        its(:type)        { should == "TIMESTAMP" }
+        its(:ruby_type)   { should == :timestamp  }
+        its(:precision)   { should == 19          }
+        its(:scale)       { should == 0           }
+        its(:nullable)    { should == true        }
+        its(:table)       { should == "tb2"       }
+        its(:primary_key) { should == false       }
+      end
+
+      context "t[:columns][3]" do
+        subject { t[:columns][3] }
+
+        its(:name)        { should == :COL4  }
+        its(:type)        { should == "TIME" }
+        its(:ruby_type)   { should == :time  }
+        its(:precision)   { should == 8      }
+        its(:scale)       { should == 0      }
+        its(:nullable)    { should == true   }
+        its(:table)       { should == "tb2"  }
+        its(:primary_key) { should == false  }
+      end
+    end
+
+    context "ts[2]" do
+      let(:t) { ts[2] }
+      subject { t }
+
+      it { should be_a RDBI::Schema }
+
+      its(:tables) { should == ["tb3"] }
+
+      context "t[:columns][0]" do
+        subject { t[:columns][0] }
+
+        its(:name)        { should == :COL1     }
+        its(:type)        { should == "INTEGER" }
+        its(:ruby_type)   { should == :integer  }
+        its(:precision)   { should == 10        }
+        its(:scale)       { should == 0         }
+        its(:nullable)    { should == false     }
+        its(:table)       { should == "tb3"     }
+        its(:primary_key) { should == true      }
+      end
+    end
   end
 
   specify "#ping" do
-    @dbh.ping.should be_true
-    @dbh.disconnect
-    @dbh.ping.should be_false
+    dbh.ping.should be_true
+
+    dbh.disconnect
+    dbh.ping.should be_false
   end
 
   specify "#quote" do
-    @dbh.quote(1).should        == "1"
-    @dbh.quote(1.2).should      == "1.2"
-    @dbh.quote("string").should == "'string'"
-    @dbh.quote(nil).should      == "NULL"
-    @dbh.quote(true).should     == "1"
-    @dbh.quote(false).should    == "0"
+    dbh.quote(1).should        == "1"
+    dbh.quote(1.2).should      == "1.2"
+    dbh.quote("string").should == "'string'"
+    dbh.quote(nil).should      == "NULL"
+    dbh.quote(true).should     == "1"
+    dbh.quote(false).should    == "0"
   end
 end
