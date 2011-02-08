@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = ">= 1.3.6"
 
-  s.add_dependency "rdbi",      "~> 0.9"
+  s.add_dependency "rdbi",      "~> 1"
   s.add_dependency "ruby-odbc", "= 0.99994"
 
   s.add_development_dependency "rdbi-dbrc", "~> 0.1"
