@@ -203,29 +203,10 @@ class RDBI::Driver::ODBC < RDBI::Driver
     def initialize(query, dbh)
       super
 
-      @handle = @dbh.handle.prepare(query)
-      @output_type_map = RDBI::Type.create_type_hash(RDBI::Type::Out)
-
-      @output_type_map[:date] = [
-        TypeLib::Filter.new(
-          proc{|obj| obj.is_a?(::ODBC::Date)},
-          proc{|obj| Date.parse(obj.to_s)}
-        )
-      ]
-
-      @output_type_map[:time] = [
-        TypeLib::Filter.new(
-          proc{|obj| obj.is_a?(::ODBC::Time)},
-          proc{|obj| Time.parse(obj.to_s)}
-        )
-      ]
-
-      @output_type_map[:timestamp] = [
-        TypeLib::Filter.new(
-          proc{|obj| obj.is_a?(::ODBC::TimeStamp)},
-          proc{|obj| DateTime.parse(obj.to_s)}
-        )
-      ]
+      @handle          = @dbh.handle.prepare(query)
+      @input_type_map  = build_input_type_map
+      @output_type_map = build_output_type_map
+     
     end
 
     def new_execution(*binds)
@@ -266,6 +247,50 @@ class RDBI::Driver::ODBC < RDBI::Driver
     def finish
       @handle.drop
       super
+    end
+
+    private
+
+    def build_input_type_map
+      input_type_map = RDBI::Type.create_type_hash(RDBI::Type::In)
+
+      input_type_map[Date] = [TypeLib::Filter.new(
+        proc{|o| o.is_a? Date},
+        proc{|o| o.strftime("%F")}
+      )]
+
+      input_type_map[Time] = [TypeLib::Filter.new(
+        proc{|o| o.is_a? Time},
+        proc{|o| o.strftime("%T.%3N")}
+      )]
+
+      input_type_map[DateTime] = [TypeLib::Filter.new(
+        proc{|o| o.is_a? DateTime},
+        proc{|o| o.strftime("%FT%T.%3N")}
+      )]
+
+      input_type_map
+    end
+
+    def build_output_type_map
+      output_type_map = RDBI::Type.create_type_hash(RDBI::Type::Out)
+
+      output_type_map[:date] = [TypeLib::Filter.new(
+        proc{|o| o.is_a? ::ODBC::Date},
+        proc{|o| Date.parse(o.to_s)}
+      )]
+
+      output_type_map[:time] = [TypeLib::Filter.new(
+        proc{|o| o.is_a? ::ODBC::Time},
+        proc{|o| Time.parse(o.to_s)}
+      )]
+
+      output_type_map[:timestamp] = [TypeLib::Filter.new(
+        proc{|o| o.is_a? ::ODBC::TimeStamp},
+        proc{|o| DateTime.parse(o.to_s)}
+      )]
+
+      output_type_map
     end
   end
 end

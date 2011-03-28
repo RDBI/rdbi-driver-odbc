@@ -121,4 +121,47 @@ describe "RDBI::Driver::ODBC::Statement" do
       r[:COL4].should == Time.parse("12:00:00")
     end
   end
+  
+  describe "Date/Time/Timestamp handling" do
+
+    context "SELECTING" do
+      let(:sth) { dbh.new_statement "SELECT * FROM TB2" }
+      let(:rs)  { sth.execute }
+      let(:r)   { rs.as(:Struct).fetch(:first) }
+
+      it "should correctly coerce results" do
+        r[:COL1].should be_a Date
+        r[:COL2].should be_a DateTime
+        r[:COL3].should be_a DateTime
+        r[:COL4].should be_a Time
+
+        r[:COL1].should == Date.parse("2010-01-01")
+        r[:COL2].should == DateTime.parse("2010-01-01 12:00:00")
+        r[:COL3].should == DateTime.parse("2010-01-01 12:00:00")
+
+        t = Time.parse("12:00:00")
+        r[:COL4].hour.should == t.hour
+        r[:COL4].min.should  == t.min
+        r[:COL4].sec.should  == t.sec
+        r[:COL4].usec.should == t.usec
+      end
+    end
+
+    context "INSERTING" do
+      let(:sth) { dbh.new_statement "INSERT INTO TB2 (COL1,COL2,COL3,COL4) VALUES (?,?,?,?)" }
+
+      it "should correctly coerce results" do
+        col1 = Date.parse("2010-01-01")
+        col2 = DateTime.parse("2010-01-01 12:00:00")
+        col3 = DateTime.parse("2010-01-01 12:00:00")
+        col4 = Time.parse("12:00:00")
+
+        expect{
+          sth.execute(col1, col2, col3, col4)
+        }.to_not raise_error
+      end
+    end
+
+  end
+
 end
