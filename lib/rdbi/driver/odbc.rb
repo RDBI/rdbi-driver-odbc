@@ -128,7 +128,7 @@ class RDBI::Driver::ODBC < RDBI::Driver
     def dsnless_driver_handle(attributes = {})
       driver      = ::ODBC::Driver.new
       driver.name = 'DSN-less Driver'
-      attributes.each {|key, value| driver.attrs[key.to_s] = value unless key == :dynamic }
+      attributes.each {|key, value| driver.attrs[key.to_s] = value }
       ::ODBC::Database.new.drvconnect(driver)
     end
   end
