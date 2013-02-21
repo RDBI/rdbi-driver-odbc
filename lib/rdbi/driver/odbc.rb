@@ -49,12 +49,17 @@ class RDBI::Driver::ODBC < RDBI::Driver
     def initialize(*args)
       super *args
 
-      database = @connect_args[:database] || @connect_args[:dbname] ||
+      database     = @connect_args[:database] || @connect_args[:dbname] ||
         @connect_args[:db]
-      username = @connect_args[:username] || @connect_args[:user]
-      password = @connect_args[:password] || @connect_args[:pass]
+      username     = @connect_args[:username] || @connect_args[:user]
+      password     = @connect_args[:password] || @connect_args[:pass]
 
-      @handle = ::ODBC.connect(database, username, password)
+      if @connect_args[:dynamic]
+        @connect_args.delete(:dynamic)
+        @handle = dsnless_driver_handle(@connect_args)
+      else
+        @handle = ::ODBC.connect(database, username, password)
+      end
 
       self.database_name = @handle.get_info("SQL_DATABASE_NAME")
     end
@@ -116,6 +121,15 @@ class RDBI::Driver::ODBC < RDBI::Driver
       else
         "'#{item.to_s}'"
       end
+    end
+
+    private
+
+    def dsnless_driver_handle(attributes = {})
+      driver      = ::ODBC::Driver.new
+      driver.name = 'DSN-less Driver'
+      attributes.each {|key, value| driver.attrs[key.to_s] = value }
+      ::ODBC::Database.new.drvconnect(driver)
     end
   end
 
