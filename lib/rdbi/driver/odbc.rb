@@ -12,7 +12,7 @@ end
 
 class RDBI::Driver::ODBC < RDBI::Driver
 
-  SQL_TYPES = {
+  SQL_TYPES = Hash.new({:type => nil, :ruby_type => :default}).merge({
       1 => {:type => "CHAR",           :ruby_type => :default},
       2 => {:type => "NUMERIC",        :ruby_type => :decimal},
       3 => {:type => "DECIMAL",        :ruby_type => :decimal},
@@ -38,9 +38,10 @@ class RDBI::Driver::ODBC < RDBI::Driver
      -6 => {:type => "TINYINT",        :ruby_type => :integer},
      -7 => {:type => "BIT",            :ruby_type => :default},
      -8 => {:type => "CHAR",           :ruby_type => :default},
+     -9 => {:type => "VARCHAR",        :ruby_type => :default},
     -10 => {:type => "BLOB",           :ruby_type => :default},
     -11 => {:type => "CLOB",           :ruby_type => :default},
-  }
+  })
 
   class Database < RDBI::Database
 
