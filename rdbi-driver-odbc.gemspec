@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "rdbi-driver-odbc"
-  s.version     = "0.1.2"
+  s.version     = "0.1.2.77"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Shane Emmons"]
   s.email       = "semmons99@gmail.com"
@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "rdbi",      "~> 1"
-  s.add_dependency "ruby-odbc", "= 0.99994"
+  s.add_dependency "ruby-odbc", ">= 0.99994"
 
   s.add_development_dependency "rdbi-dbrc", "~> 0.1"
   s.add_development_dependency "rspec",     "~> 2"
