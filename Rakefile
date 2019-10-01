@@ -45,3 +45,7 @@ desc "Validate the gemspec"
 task :gemspec do
   gemspec.validate
 end
+
+task :default => :gem do
+  puts "generated latest version"
+end
