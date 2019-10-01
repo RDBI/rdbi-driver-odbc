@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "rdbi-driver-odbc"
-  s.version     = "0.1.2"
+  s.version     = "0.1.2.77"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Shane Emmons"]
   s.email       = "semmons99@gmail.com"
